@@ -1,381 +1,382 @@
 <html><head><base href="/" /><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>學生成績權重計算</title>
-<style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background: linear-gradient(145deg, #f6f8fb 0%, #c8d9f1 100%);
-  min-height: 100vh;
-  color: #2c3e50;
-}
-
-h1, h2 {
-  color: #1a365d;
-  border-bottom: 3px solid #4299e1;
-  padding-bottom: 12px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 25px;
-}
-
-.calculator-container {
-  background-color: white;
-  padding: 35px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  margin-top: 25px;
-  position: relative;
-  overflow: hidden;
-}
-
-.calculator-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(to right, #4299e1, #667eea);
-}
-
-.score-input {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 15px;
-  padding: 10px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.score-input:hover {
-  background-color: #f8fafc;
-}
-
-label {
-  min-width: 130px;
-  color: #2d3748;
-  font-weight: 600;
-  font-size: 1.1em;
-}
-
-input {
-  padding: 12px 20px;
-  border: 2px solid #e2e8f0;
-  border-radius: 25px;
-  width: 120px;
-  transition: all 0.3s ease;
-  font-size: 1.1em;
-  background-color: #f8fafc;
-}
-
-input:focus {
-  outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
-  background-color: white;
-}
-
-button {
-  background: linear-gradient(135deg, #4299e1, #667eea);
-  color: white;
-  padding: 15px 30px;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  margin: 15px 0;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(66,153,225,0.2);
-  width: 100%;
-  font-size: 1.2em;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(66,153,225,0.3);
-  background: linear-gradient(135deg, #3182ce, #5a67d8);
-}
-
-.result-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 25px;
-}
-
-.score-card {
-  background: linear-gradient(to right bottom, #f8fafc, #edf2f7);
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transform: scale(0.98);
-  transition: all 0.3s ease;
-}
-
-.score-card:hover {
-  transform: scale(1);
-}
-
-.score-card h3 {
-  color: #2d3748;
-  margin-bottom: 15px;
-  font-size: 1.2em;
-}
-
-.score-value {
-  font-size: 2em;
-  font-weight: bold;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-.weighted-score {
-  color: #4299e1;
-}
-
-.average-score {
-  color: #48bb78;
-}
-
-.loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255,255,255,0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  backdrop-filter: blur(8px);
-}
-
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 6px solid #edf2f7;
-  border-top: 6px solid #4299e1;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-select {
-  padding: 12px 20px;
-  border: 2px solid #e2e8f0;
-  border-radius: 25px;
-  margin-bottom: 25px;
-  width: 250px;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1.1em;
-  color: #2d3748;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234299e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 15px center;
-  background-size: 16px;
-}
-
-select:focus {
-  outline: none;
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
-}
-
-.exam-select-container {
-  margin-bottom: 30px;
-}
-
-@media (max-width: 600px) {
+  <style>
   body {
-    padding: 10px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: linear-gradient(145deg, #f6f8fb 0%, #c8d9f1 100%);
+    min-height: 100vh;
+    color: #2c3e50;
   }
   
-  h1 {
-    font-size: 1.5em;
-  }
-
-  h2 {
-    font-size: 1.3em;
+  h1, h2 {
+    color: #1a365d;
+    border-bottom: 3px solid #4299e1;
+    padding-bottom: 12px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
   }
   
   .calculator-container {
-    padding: 15px;
-    margin-top: 15px;
+    background-color: white;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    margin-top: 25px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .calculator-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(to right, #4299e1, #667eea);
   }
   
   .score-input {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
   }
   
-  input, select {
-    width: calc(100% - 40px);
+  .score-input:hover {
+    background-color: #f8fafc;
   }
-
+  
   label {
-    min-width: auto;
-    width: 100%;
-  }
-
-  .result .weighted-score {
-    font-size: 2em;
-  }
-
-  button {
-    padding: 12px 20px;
+    min-width: 130px;
+    color: #2d3748;
+    font-weight: 600;
     font-size: 1.1em;
   }
-}
-</style>
-</head>
-<body>
-  <h1>學生成績權重計算</h1>
   
-  <div class="calculator-container">
-    <div class="exam-select-container">
-      <h2>選擇考試</h2>
-      <select id="examSelect" onchange="filterSubjects()">
-        <!-- 選項會由 JavaScript 動態填入 -->
-      </select>
-    </div>
-
-    <h2>輸入成績</h2>
-    <div id="scoreInputs"></div>
-    <button onclick="calculateWeightedScore()">計算加權分數</button>
+  input {
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    width: 120px;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    background-color: #f8fafc;
+  }
+  
+  input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
+    background-color: white;
+  }
+  
+  button {
+    background: linear-gradient(135deg, #4299e1, #667eea);
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(66,153,225,0.2);
+    width: 100%;
+    font-size: 1.2em;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  
+  button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(66,153,225,0.3);
+    background: linear-gradient(135deg, #3182ce, #5a67d8);
+  }
+  
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 25px;
+  }
+  
+  .score-card {
+    background: linear-gradient(to right bottom, #f8fafc, #edf2f7);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transform: scale(0.98);
+    transition: all 0.3s ease;
+  }
+  
+  .score-card:hover {
+    transform: scale(1);
+  }
+  
+  .score-card h3 {
+    color: #2d3748;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+  }
+  
+  .score-value {
+    font-size: 2em;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+  
+  .weighted-score {
+    color: #4299e1;
+  }
+  
+  .average-score {
+    color: #48bb78;
+  }
+  
+  .loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+  }
+  
+  .spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #edf2f7;
+    border-top: 6px solid #4299e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  select {
+    padding: 12px 20px;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    margin-bottom: 25px;
+    width: 250px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    color: #2d3748;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234299e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+  }
+  
+  select:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.2);
+  }
+  
+  .exam-select-container {
+    margin-bottom: 30px;
+  }
+  
+  @media (max-width: 600px) {
+    body {
+      padding: 10px;
+    }
     
-    <div class="result-grid">
-      <div class="score-card" id="weightedResult" style="display: none;">
-        <h3>加權後總分</h3>
-        <div class="score-value weighted-score" id="weightedScore">0</div>
+    h1 {
+      font-size: 1.5em;
+    }
+  
+    h2 {
+      font-size: 1.3em;
+    }
+    
+    .calculator-container {
+      padding: 15px;
+      margin-top: 15px;
+    }
+    
+    .score-input {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    input, select {
+      width: calc(100% - 40px);
+    }
+  
+    label {
+      min-width: auto;
+      width: 100%;
+    }
+  
+    .result .weighted-score {
+      font-size: 2em;
+    }
+  
+    button {
+      padding: 12px 20px;
+      font-size: 1.1em;
+    }
+  }
+  </style>
+  </head>
+  <body>
+    <h1>學生成績權重計算</h1>
+    
+    <div class="calculator-container">
+      <div class="exam-select-container">
+        <h2>選擇考試</h2>
+        <select id="examSelect" onchange="filterSubjects()">
+          <!-- 選項會由 JavaScript 動態填入 -->
+        </select>
       </div>
-      <div class="score-card" id="averageResult" style="display: none;">
-        <h3>平均分數</h3>
-        <div class="score-value average-score" id="averageScore">0</div>
+  
+      <h2>輸入成績</h2>
+      <div id="scoreInputs"></div>
+      <button onclick="calculateWeightedScore()">計算加權分數</button>
+      
+      <div class="result-grid">
+        <div class="score-card" id="weightedResult" style="display: none;">
+          <h3>加權後總分</h3>
+          <div class="score-value weighted-score" id="weightedScore">0</div>
+        </div>
+        <div class="score-card" id="averageResult" style="display: none;">
+          <h3>平均分數</h3>
+          <div class="score-value average-score" id="averageScore">0</div>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div id="loadingOverlay" class="loading" style="display: none;">
-    <div class="spinner"></div>
-  </div>
-
-  <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyumZpo6nszBrq0ZIb_a_5OfHVeR-j-tuIuKQS054cxm3izzT1tx-4u0hAl9b5VjVHw4A/exec';
-    let subjectsData = [];
-    let uniqueExams = new Set();
-
-    function showLoading() {
-      document.getElementById('loadingOverlay').style.display = 'flex';
-    }
-
-    function hideLoading() {
-      document.getElementById('loadingOverlay').style.display = 'none';
-    }
-
-    function populateExamSelect() {
-      const examSelect = document.getElementById('examSelect');
-      examSelect.innerHTML = '<option value="">請選擇考試</option>';
-      
-      Array.from(uniqueExams).sort().forEach(exam => {
-        const option = document.createElement('option');
-        option.value = exam;
-        option.textContent = exam;
-        examSelect.appendChild(option);
-      });
-    }
-
-    function filterSubjects() {
-      const selectedExam = document.getElementById('examSelect').value;
-      const container = document.getElementById('scoreInputs');
-      container.innerHTML = '';
-      
-      if (!selectedExam) return;
-
-      const filteredSubjects = subjectsData.filter(subject => subject.exam === selectedExam);
-      
-      filteredSubjects.forEach((subject, index) => {
-        const div = document.createElement('div');
-        div.className = 'score-input';
-        
-        div.innerHTML = `
-          <label for="score${index}">${subject.name}：</label>
-          <input type="number" id="score${index}" min="0" max="100" placeholder="分數">
-          <span>(權重: ${subject.weight})</span>
-        `;
-        
-        container.appendChild(div);
-      });
-
-      // 清空結果
-      document.getElementById('weightedResult').style.display = 'none';
-      document.getElementById('averageResult').style.display = 'none';
-      document.getElementById('weightedScore').textContent = '0';
-      document.getElementById('averageScore').textContent = '0';
-    }
-
-    async function loadSubjects() {
-      try {
-        showLoading();
-        const response = await fetch(`${SCRIPT_URL}?action=load`);
-        subjectsData = await response.json();
-        
-        // 收集所有不重複的考試名稱
-        uniqueExams = new Set(subjectsData.map(subject => subject.exam));
-        
-        // 填入考試選項
-        populateExamSelect();
-      } catch (error) {
-        alert('讀取科目資料失敗：' + error.message);
-      } finally {
-        hideLoading();
+  
+    <div id="loadingOverlay" class="loading" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+  
+    <script>
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyumZpo6nszBrq0ZIb_a_5OfHVeR-j-tuIuKQS054cxm3izzT1tx-4u0hAl9b5VjVHw4A/exec';
+      let subjectsData = [];
+      let uniqueExams = new Set();
+  
+      function showLoading() {
+        document.getElementById('loadingOverlay').style.display = 'flex';
       }
-    }
-
-    function calculateWeightedScore() {
-      const selectedExam = document.getElementById('examSelect').value;
-      if (!selectedExam) {
-        alert('請先選擇考試！');
-        return;
+  
+      function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
       }
-
-      const filteredSubjects = subjectsData.filter(subject => subject.exam === selectedExam);
-      let totalWeightedScore = 0;
-      let totalWeight = 0;
-      let totalScore = 0;
-      let validScoreCount = 0;
-      
-      filteredSubjects.forEach((subject, index) => {
-        const score = parseFloat(document.getElementById(`score${index}`).value);
-        if (!isNaN(score)) {
-          totalWeightedScore += score * subject.weight;
-          totalWeight += subject.weight;
-          totalScore += score;
-          validScoreCount++;
+  
+      function populateExamSelect() {
+        const examSelect = document.getElementById('examSelect');
+        examSelect.innerHTML = '<option value="">請選擇考試</option>';
+        
+        Array.from(uniqueExams).sort().forEach(exam => {
+          const option = document.createElement('option');
+          option.value = exam;
+          option.textContent = exam;
+          examSelect.appendChild(option);
+        });
+      }
+  
+      function filterSubjects() {
+        const selectedExam = document.getElementById('examSelect').value;
+        const container = document.getElementById('scoreInputs');
+        container.innerHTML = '';
+        
+        if (!selectedExam) return;
+  
+        const filteredSubjects = subjectsData.filter(subject => subject.exam === selectedExam);
+        
+        filteredSubjects.forEach((subject, index) => {
+          const div = document.createElement('div');
+          div.className = 'score-input';
+          
+          div.innerHTML = `
+            <label for="score${index}">${subject.name}：</label>
+            <input type="number" id="score${index}" min="0" max="100" placeholder="分數">
+            <span>(權重: ${subject.weight})</span>
+          `;
+          
+          container.appendChild(div);
+        });
+  
+        // 清空結果
+        document.getElementById('weightedResult').style.display = 'none';
+        document.getElementById('averageResult').style.display = 'none';
+        document.getElementById('weightedScore').textContent = '0';
+        document.getElementById('averageScore').textContent = '0';
+      }
+  
+      async function loadSubjects() {
+        try {
+          showLoading();
+          const response = await fetch(`${SCRIPT_URL}?action=load`);
+          subjectsData = await response.json();
+          
+          // 收集所有不重複的考試名稱
+          uniqueExams = new Set(subjectsData.map(subject => subject.exam));
+          
+          // 填入考試選項
+          populateExamSelect();
+        } catch (error) {
+          alert('讀取科目資料失敗：' + error.message);
+        } finally {
+          hideLoading();
         }
-      });
-      
-      const finalWeightedScore = totalWeight > 0 ? (totalWeightedScore / totalWeight).toFixed(2) : 0;
-      const averageScore = validScoreCount > 0 ? (totalScore / validScoreCount).toFixed(2) : 0;
-      
-      document.getElementById('weightedResult').style.display = 'block';
-      document.getElementById('averageResult').style.display = 'block';
-      document.getElementById('weightedScore').textContent = finalWeightedScore;
-      document.getElementById('averageScore').textContent = averageScore;
-    }
-
-    // 初始載入科目資料
-    window.onload = loadSubjects;
-  </script>
-</body>
-</html>
+      }
+  
+      function calculateWeightedScore() {
+        const selectedExam = document.getElementById('examSelect').value;
+        if (!selectedExam) {
+          alert('請先選擇考試！');
+          return;
+        }
+  
+        const filteredSubjects = subjectsData.filter(subject => subject.exam === selectedExam);
+        let totalWeightedScore = 0;
+        let totalWeight = 0;
+        let totalScore = 0;
+        let validScoreCount = 0;
+        
+        filteredSubjects.forEach((subject, index) => {
+          const score = parseFloat(document.getElementById(`score${index}`).value);
+          if (!isNaN(score)) {
+            totalWeightedScore += score * subject.weight;
+            totalWeight += subject.weight;
+            totalScore += score;
+            validScoreCount++;
+          }
+        });
+        
+        const finalWeightedScore = totalWeight > 0 ? (totalWeightedScore ).toFixed(0) : 0;
+        const averageScore = validScoreCount > 0 ? (totalWeightedScore / totalWeight).toFixed(1) : 0;
+        
+        document.getElementById('weightedResult').style.display = 'block';
+        document.getElementById('averageResult').style.display = 'block';
+        document.getElementById('weightedScore').textContent = finalWeightedScore;
+        document.getElementById('averageScore').textContent = averageScore;
+      }
+  
+      // 初始載入科目資料
+      window.onload = loadSubjects;
+    </script>
+  </body>
+  </html>
+  
