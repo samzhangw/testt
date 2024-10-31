@@ -125,16 +125,63 @@ input:focus {
     padding: 10px;
   }
   
+  table, thead, tbody, tr, th, td {
+    display: block;
+  }
+  
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  
+  tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+  }
+  
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: right;
+  }
+  
+  td:before {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    content: attr(data-label);
+    font-weight: bold;
+  }
+  
   input {
-    width: 100%;
+    width: calc(100% - 30px);
   }
   
   label {
     width: 100%;
+    margin-bottom: 5px;
   }
   
   button {
     width: 100%;
+    margin: 10px 0;
+  }
+  
+  .exam-filter {
+    flex-direction: column;
+  }
+  
+  .exam-filter select {
+    width: 100%;
+  }
+  
+  form {
+    padding: 15px;
   }
 }
 
@@ -206,7 +253,7 @@ input:focus {
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTcAbA4qrGuKsUdLw0S95dm4RjdvbvrGlcDa0QYwmsUv5zpTvSt0EWglSGGZt2qOPSvQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyumZpo6nszBrq0ZIb_a_5OfHVeR-j-tuIuKQS054cxm3izzT1tx-4u0hAl9b5VjVHw4A/exec';
     let allSubjects = [];
 
     function showLoading() {
@@ -248,11 +295,20 @@ input:focus {
       
       subjects.forEach(subject => {
         const row = tableBody.insertRow();
-        row.insertCell(0).textContent = subject.exam;
-        row.insertCell(1).textContent = subject.name;
-        row.insertCell(2).textContent = subject.weight;
-        
+        const examCell = row.insertCell(0);
+        const nameCell = row.insertCell(1);
+        const weightCell = row.insertCell(2);
         const actionCell = row.insertCell(3);
+        
+        examCell.setAttribute('data-label', '段考');
+        nameCell.setAttribute('data-label', '科目');
+        weightCell.setAttribute('data-label', '權重');
+        actionCell.setAttribute('data-label', '操作');
+        
+        examCell.textContent = subject.exam;
+        nameCell.textContent = subject.name;
+        weightCell.textContent = subject.weight;
+        
         const editButton = document.createElement('button');
         editButton.textContent = '編輯';
         editButton.onclick = () => editRow(subject);
