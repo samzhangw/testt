@@ -137,6 +137,29 @@ input:focus {
     width: 100%;
   }
 }
+
+.exam-filter {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.exam-filter select {
+  padding: 10px 15px;
+  border: 2px solid #eee;
+  border-radius: 25px;
+  background-color: white;
+  min-width: 200px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.exam-filter select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52,152,219,0.3);
+}
 </style>
 </head>
 <body>
@@ -144,6 +167,12 @@ input:focus {
   
   <div>
     <button onclick="loadData()">讀取資料</button>
+  </div>
+
+  <div class="exam-filter">
+    <select id="examFilter" onchange="filterTable()">
+      <option value="all">顯示所有段考</option>
+    </select>
   </div>
 
   <table border="1" id="subjectTable">
@@ -178,6 +207,7 @@ input:focus {
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTcAbA4qrGuKsUdLw0S95dm4RjdvbvrGlcDa0QYwmsUv5zpTvSt0EWglSGGZt2qOPSvQ/exec';
+    let allSubjects = [];
 
     function showLoading() {
       document.getElementById('loadingOverlay').style.display = 'flex';
@@ -187,27 +217,57 @@ input:focus {
       document.getElementById('loadingOverlay').style.display = 'none';
     }
 
+    function updateExamFilter(subjects) {
+      const examFilter = document.getElementById('examFilter');
+      const uniqueExams = [...new Set(subjects.map(s => s.exam))];
+      
+      while (examFilter.options.length > 1) {
+        examFilter.remove(1);
+      }
+      
+      uniqueExams.forEach(exam => {
+        const option = document.createElement('option');
+        option.value = exam;
+        option.textContent = exam;
+        examFilter.appendChild(option);
+      });
+    }
+
+    function filterTable() {
+      const selectedExam = document.getElementById('examFilter').value;
+      const filteredSubjects = selectedExam === 'all' 
+        ? allSubjects 
+        : allSubjects.filter(s => s.exam === selectedExam);
+      
+      updateTable(filteredSubjects);
+    }
+
+    function updateTable(subjects) {
+      const tableBody = document.getElementById("subjectTable").getElementsByTagName("tbody")[0];
+      tableBody.innerHTML = "";
+      
+      subjects.forEach(subject => {
+        const row = tableBody.insertRow();
+        row.insertCell(0).textContent = subject.exam;
+        row.insertCell(1).textContent = subject.name;
+        row.insertCell(2).textContent = subject.weight;
+        
+        const actionCell = row.insertCell(3);
+        const editButton = document.createElement('button');
+        editButton.textContent = '編輯';
+        editButton.onclick = () => editRow(subject);
+        actionCell.appendChild(editButton);
+      });
+    }
+
     async function loadData() {
       try {
         showLoading();
         const response = await fetch(`${SCRIPT_URL}?action=load`);
-        const subjects = await response.json();
+        allSubjects = await response.json();
         
-        const tableBody = document.getElementById("subjectTable").getElementsByTagName("tbody")[0];
-        tableBody.innerHTML = "";
-        
-        subjects.forEach(subject => {
-          const row = tableBody.insertRow();
-          row.insertCell(0).textContent = subject.exam;
-          row.insertCell(1).textContent = subject.name;
-          row.insertCell(2).textContent = subject.weight;
-          
-          const actionCell = row.insertCell(3);
-          const editButton = document.createElement('button');
-          editButton.textContent = '編輯';
-          editButton.onclick = () => editRow(subject);
-          actionCell.appendChild(editButton);
-        });
+        updateExamFilter(allSubjects);
+        filterTable();
       } catch (error) {
         alert('讀取資料失敗：' + error.message);
       } finally {
@@ -253,7 +313,6 @@ input:focus {
       }
     }
 
-    // 初始載入資料
     window.onload = loadData;
   </script>
 </body>
