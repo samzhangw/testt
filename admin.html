@@ -1,0 +1,260 @@
+<html><head><base href="/" /><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>段考科目管理</title>
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+h1, h2 {
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 15px;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+  font-weight: 500;
+}
+
+tr:hover {
+  background-color: #f8f9fa;
+  transition: background-color 0.3s ease;
+}
+
+button {
+  background: linear-gradient(to right, #3498db, #2980b9);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+form {
+  background-color: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  margin-top: 20px;
+}
+
+label {
+  display: inline-block;
+  width: 120px;
+  margin: 10px 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+input {
+  padding: 10px 15px;
+  margin: 5px 0;
+  border: 2px solid #eee;
+  border-radius: 25px;
+  width: 250px;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 8px rgba(52,152,219,0.3);
+}
+
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255,255,255,0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+  
+  input {
+    width: 100%;
+  }
+  
+  label {
+    width: 100%;
+  }
+  
+  button {
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+  <h1>段考科目與權重管理</h1>
+  
+  <div>
+    <button onclick="loadData()">讀取資料</button>
+  </div>
+
+  <table border="1" id="subjectTable">
+    <thead>
+      <tr>
+        <th>段考</th>
+        <th>科目</th>
+        <th>權重</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  
+  <h2>新增或修改資料</h2>
+  <form id="dataForm">
+    <label for="exam">段考名稱：</label>
+    <input type="text" id="exam" required>
+    <br>
+    <label for="name">科目名稱：</label>
+    <input type="text" id="name" required>
+    <br>
+    <label for="weight">權重：</label>
+    <input type="number" id="weight" step="0.01" required>
+    <br>
+    <button type="button" onclick="saveData()">儲存資料</button>
+  </form>
+
+  <div id="loadingOverlay" class="loading" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTcAbA4qrGuKsUdLw0S95dm4RjdvbvrGlcDa0QYwmsUv5zpTvSt0EWglSGGZt2qOPSvQ/exec';
+
+    function showLoading() {
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    async function loadData() {
+      try {
+        showLoading();
+        const response = await fetch(`${SCRIPT_URL}?action=load`);
+        const subjects = await response.json();
+        
+        const tableBody = document.getElementById("subjectTable").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = "";
+        
+        subjects.forEach(subject => {
+          const row = tableBody.insertRow();
+          row.insertCell(0).textContent = subject.exam;
+          row.insertCell(1).textContent = subject.name;
+          row.insertCell(2).textContent = subject.weight;
+          
+          const actionCell = row.insertCell(3);
+          const editButton = document.createElement('button');
+          editButton.textContent = '編輯';
+          editButton.onclick = () => editRow(subject);
+          actionCell.appendChild(editButton);
+        });
+      } catch (error) {
+        alert('讀取資料失敗：' + error.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function editRow(subject) {
+      document.getElementById("exam").value = subject.exam;
+      document.getElementById("name").value = subject.name;
+      document.getElementById("weight").value = subject.weight;
+    }
+
+    async function saveData() {
+      try {
+        const exam = document.getElementById("exam").value;
+        const name = document.getElementById("name").value;
+        const weight = parseFloat(document.getElementById("weight").value);
+
+        if (!exam || !name || isNaN(weight)) {
+          alert("請填寫完整資料！");
+          return;
+        }
+
+        showLoading();
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: "save",
+            data: [{ exam, name, weight }]
+          })
+        });
+
+        const result = await response.text();
+        alert(result);
+        document.getElementById("dataForm").reset();
+        await loadData();
+      } catch (error) {
+        alert('儲存資料失敗：' + error.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // 初始載入資料
+    window.onload = loadData;
+  </script>
+</body>
+</html>
