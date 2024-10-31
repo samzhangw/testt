@@ -98,10 +98,16 @@ button:hover {
   background: linear-gradient(135deg, #3182ce, #5a67d8);
 }
 
-.result {
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
   margin-top: 25px;
-  padding: 25px;
+}
+
+.score-card {
   background: linear-gradient(to right bottom, #f8fafc, #edf2f7);
+  padding: 20px;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -109,21 +115,28 @@ button:hover {
   transition: all 0.3s ease;
 }
 
-.result:hover {
+.score-card:hover {
   transform: scale(1);
 }
 
-.result h3 {
+.score-card h3 {
   color: #2d3748;
   margin-bottom: 15px;
-  font-size: 1.3em;
+  font-size: 1.2em;
 }
 
-.result .weighted-score {
-  font-size: 2.5em;
-  color: #4299e1;
+.score-value {
+  font-size: 2em;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+.weighted-score {
+  color: #4299e1;
+}
+
+.average-score {
+  color: #48bb78;
 }
 
 .loading {
@@ -184,20 +197,44 @@ select:focus {
 
 @media (max-width: 600px) {
   body {
-    padding: 15px;
+    padding: 10px;
+  }
+  
+  h1 {
+    font-size: 1.5em;
+  }
+
+  h2 {
+    font-size: 1.3em;
   }
   
   .calculator-container {
-    padding: 20px;
+    padding: 15px;
+    margin-top: 15px;
   }
   
   .score-input {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
   }
   
   input, select {
+    width: calc(100% - 40px);
+  }
+
+  label {
+    min-width: auto;
     width: 100%;
+  }
+
+  .result .weighted-score {
+    font-size: 2em;
+  }
+
+  button {
+    padding: 12px 20px;
+    font-size: 1.1em;
   }
 }
 </style>
@@ -217,9 +254,15 @@ select:focus {
     <div id="scoreInputs"></div>
     <button onclick="calculateWeightedScore()">計算加權分數</button>
     
-    <div class="result" id="result" style="display: none;">
-      <h3>加權後總分</h3>
-      <div class="weighted-score" id="weightedScore">0</div>
+    <div class="result-grid">
+      <div class="score-card" id="weightedResult" style="display: none;">
+        <h3>加權後總分</h3>
+        <div class="score-value weighted-score" id="weightedScore">0</div>
+      </div>
+      <div class="score-card" id="averageResult" style="display: none;">
+        <h3>平均分數</h3>
+        <div class="score-value average-score" id="averageScore">0</div>
+      </div>
     </div>
   </div>
 
@@ -228,7 +271,7 @@ select:focus {
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTcAbA4qrGuKsUdLw0S95dm4RjdvbvrGlcDa0QYwmsUv5zpTvSt0EWglSGGZt2qOPSvQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyumZpo6nszBrq0ZIb_a_5OfHVeR-j-tuIuKQS054cxm3izzT1tx-4u0hAl9b5VjVHw4A/exec';
     let subjectsData = [];
     let uniqueExams = new Set();
 
@@ -275,8 +318,10 @@ select:focus {
       });
 
       // 清空結果
-      document.getElementById('result').style.display = 'none';
+      document.getElementById('weightedResult').style.display = 'none';
+      document.getElementById('averageResult').style.display = 'none';
       document.getElementById('weightedScore').textContent = '0';
+      document.getElementById('averageScore').textContent = '0';
     }
 
     async function loadSubjects() {
@@ -307,19 +352,26 @@ select:focus {
       const filteredSubjects = subjectsData.filter(subject => subject.exam === selectedExam);
       let totalWeightedScore = 0;
       let totalWeight = 0;
+      let totalScore = 0;
+      let validScoreCount = 0;
       
       filteredSubjects.forEach((subject, index) => {
         const score = parseFloat(document.getElementById(`score${index}`).value);
         if (!isNaN(score)) {
           totalWeightedScore += score * subject.weight;
           totalWeight += subject.weight;
+          totalScore += score;
+          validScoreCount++;
         }
       });
       
-      const finalScore = totalWeight > 0 ? (totalWeightedScore / totalWeight).toFixed(2) : 0;
+      const finalWeightedScore = totalWeight > 0 ? (totalWeightedScore / totalWeight).toFixed(2) : 0;
+      const averageScore = validScoreCount > 0 ? (totalScore / validScoreCount).toFixed(2) : 0;
       
-      document.getElementById('result').style.display = 'block';
-      document.getElementById('weightedScore').textContent = finalScore;
+      document.getElementById('weightedResult').style.display = 'block';
+      document.getElementById('averageResult').style.display = 'block';
+      document.getElementById('weightedScore').textContent = finalWeightedScore;
+      document.getElementById('averageScore').textContent = averageScore;
     }
 
     // 初始載入科目資料
